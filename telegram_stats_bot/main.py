@@ -25,6 +25,7 @@ import argparse
 import shlex
 import warnings
 import os
+from datetime import time
 
 import telegram
 from telegram.error import BadRequest
@@ -190,6 +191,18 @@ def send_help(text: str, context: CallbackContext, update: Update):
                                  text=f"```\n{text}\n```",
                                  parse_mode=telegram.ParseMode.MARKDOWN_V2)
 
+def daily_resume(stats, context=None):
+
+    (htext, image) = stats.get_message_history()
+    (text, simage) = stats.get_chat_counts()
+
+    if text:
+        context.bot.send_message(chat_id=args.chat_id,
+                                 text=text,
+                                 parse_mode=telegram.ParseMode.MARKDOWN_V2)
+    if image:
+        context.bot.send_photo(chat_id=args.chat_id, photo=image)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -229,6 +242,7 @@ if __name__ == '__main__':
     job_queue: JobQueue = updater.job_queue
     update_users_job = job_queue.run_repeating(update_usernames_wrapper, interval=3600, first=5, context=args.chat_id)
     test_privacy_job = job_queue.run_once(test_can_read_all_group_messages, 0)
+    daily = job_queue.run_daily(daily_resume(stats=stats), time=time(hour=20), days=(1, 2, 3, 4, 5))
 
     updater.start_polling()
     updater.idle()
