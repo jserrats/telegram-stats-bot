@@ -26,6 +26,7 @@ import shlex
 import warnings
 import os
 from datetime import time
+import pytz
 
 import telegram
 from telegram.error import BadRequest
@@ -242,7 +243,8 @@ if __name__ == '__main__':
     job_queue: JobQueue = updater.job_queue
     update_users_job = job_queue.run_repeating(update_usernames_wrapper, interval=3600, first=5, context=args.chat_id)
     test_privacy_job = job_queue.run_once(test_can_read_all_group_messages, 0)
-    daily = job_queue.run_daily(daily_resume, time=time(hour=20), days=(1, 2, 3, 4, 5))
+    daily = job_queue.run_daily(daily_resume, time=time(hour=20, minute=0, tzinfo=pytz.timezone('Europe/Madrid')),
+                                days=(0, 1, 2, 3, 4))
 
     updater.start_polling()
     updater.idle()
