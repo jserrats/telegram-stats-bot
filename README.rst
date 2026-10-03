@@ -155,8 +155,8 @@ Be sure to set the ``TZ``, ``BOT_TOKEN``, and ``CHAT_ID`` environment variable a
 Kubernetes
 ----------
 
-``chart/`` is a Helm chart that runs the bot with its own Postgres. ``BOT_TOKEN`` and ``POSTGRES_PASSWORD`` come from a
-Secret, either one you create (``existingSecret``) or one synced from Infisical (``infisical.identityId``). See
+``chart/`` is a Helm chart that runs the bot with its own Postgres. The bot token and the Postgres password come from a
+Secret, under the keys in ``secretKeys``, either one you create (``existingSecret``) or one synced from Infisical (``infisical.identityId``). See
 ``chart/values.yaml`` for the rest. To move an existing Postgres data directory in, deploy with ``postgres.replicas: 0``
 and ``bot.replicas: 0``, copy it into ``pgdata/`` on the PVC, owned by uid 999, then scale both up.
 

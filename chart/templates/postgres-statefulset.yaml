@@ -40,7 +40,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ include "tsb.secretName" . }}
-                  key: POSTGRES_PASSWORD
+                  key: {{ .Values.secretKeys.postgresPassword }}
             # A subdirectory: the volume's root may hold lost+found, and
             # initdb refuses a non-empty directory.
             - name: PGDATA

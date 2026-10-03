@@ -38,14 +38,14 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ include "tsb.secretName" . }}
-                  key: BOT_TOKEN
+                  key: {{ .Values.secretKeys.botToken }}
             - name: POSTGRES_USER
               value: {{ .Values.postgres.user | quote }}
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "tsb.secretName" . }}
-                  key: POSTGRES_PASSWORD
+                  key: {{ .Values.secretKeys.postgresPassword }}
             - name: POSTGRES_HOST
               value: {{ include "tsb.postgresName" . }}
             - name: POSTGRES_DB

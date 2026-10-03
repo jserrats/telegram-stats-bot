@@ -4,13 +4,18 @@ tz: America/Toronto
 # The chat to monitor. 0 logs nothing; set it to 0 first to find the chat's id.
 chatId: "0"
 
-# The Secret holding BOT_TOKEN and POSTGRES_PASSWORD. Empty means the release's
-# full name, which is also the Secret the InfisicalSecret below creates.
+# The Secret holding the bot token and the Postgres password. Empty means the
+# release's full name, which is also the Secret the InfisicalSecret below
+# creates.
 existingSecret: ""
+# The keys in that Secret; with Infisical, the names of its secrets.
+secretKeys:
+  botToken: BOT_TOKEN
+  postgresPassword: POSTGRES_PASSWORD
 
 # Optional: sync the Secret above from Infisical with its Kubernetes operator.
 # Rendered only when identityId is set. The folder at secretsPath must hold
-# BOT_TOKEN and POSTGRES_PASSWORD.
+# the secrets named in secretKeys.
 infisical:
   identityId: ""
   projectSlug: ""
