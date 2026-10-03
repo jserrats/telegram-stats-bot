@@ -1,0 +1,58 @@
+# The bot. It only makes outbound connections (long polling to Telegram), so
+# there is no Service. The image's CMD builds the database URL from the
+# POSTGRES_* variables.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "tsb.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "tsb.labels" . | nindent 4 }}
+    {{- include "tsb.botSelector" . | nindent 4 }}
+  # The Infisical operator restarts the pod when the Secret changes.
+  annotations:
+    secrets.infisical.com/auto-reload: "true"
+spec:
+  replicas: {{ .Values.bot.replicas }}
+  # Never two bots at once: they would fight over getUpdates.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "tsb.botSelector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "tsb.botSelector" . | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: bot
+          image: {{ .Values.bot.image }}
+          env:
+            - name: TZ
+              value: {{ .Values.tz | quote }}
+            - name: CHAT_ID
+              value: {{ .Values.chatId | quote }}
+            - name: BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "tsb.secretName" . }}
+                  key: BOT_TOKEN
+            - name: POSTGRES_USER
+              value: {{ .Values.postgres.user | quote }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "tsb.secretName" . }}
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_HOST
+              value: {{ include "tsb.postgresName" . }}
+            - name: POSTGRES_DB
+              value: {{ .Values.postgres.db | quote }}
+          resources:
+            {{- toYaml .Values.bot.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]

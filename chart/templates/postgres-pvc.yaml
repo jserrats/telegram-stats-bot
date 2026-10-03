@@ -1,0 +1,21 @@
+# A standalone PVC rather than a volumeClaimTemplate, so that it exists while
+# postgres.replicas is 0 and an existing data directory can be copied in
+# before Postgres first starts. Kept on uninstall: it is the only copy of the
+# message history.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "tsb.postgresName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "tsb.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  accessModes: [ReadWriteOnce]
+  {{- with .Values.postgres.storage.className }}
+  storageClassName: {{ . }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.postgres.storage.size }}

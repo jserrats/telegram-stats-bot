@@ -151,6 +151,15 @@ Docker
 A Docker image is available under ``mkdryden/telegram-stats-bot`` and a sample ``docker-compose.yml`` is in the root of the repository including database setup.
 Be sure to set the ``TZ``, ``BOT_TOKEN``, and ``CHAT_ID`` environment variable appropriately in your ``docker-run`` command or the ``docker-compose.yml`` file.
 
+----------
+Kubernetes
+----------
+
+``chart/`` is a Helm chart that runs the bot with its own Postgres. ``BOT_TOKEN`` and ``POSTGRES_PASSWORD`` come from a
+Secret, either one you create (``existingSecret``) or one synced from Infisical (``infisical.identityId``). See
+``chart/values.yaml`` for the rest. To move an existing Postgres data directory in, deploy with ``postgres.replicas: 0``
+and ``bot.replicas: 0``, copy it into ``pgdata/`` on the PVC, owned by uid 999, then scale both up.
+
 -----
 Setup
 -----
