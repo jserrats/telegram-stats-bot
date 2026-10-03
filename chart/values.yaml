@@ -1,0 +1,53 @@
+# Time zone that statistics are reported in (tz database name).
+tz: America/Toronto
+
+# The chat to monitor. 0 logs nothing; set it to 0 first to find the chat's id.
+chatId: "0"
+
+# The Secret holding BOT_TOKEN and POSTGRES_PASSWORD. Empty means the release's
+# full name, which is also the Secret the InfisicalSecret below creates.
+existingSecret: ""
+
+# Optional: sync the Secret above from Infisical with its Kubernetes operator.
+# Rendered only when identityId is set. The folder at secretsPath must hold
+# BOT_TOKEN and POSTGRES_PASSWORD.
+infisical:
+  identityId: ""
+  projectSlug: ""
+  envSlug: ""
+  secretsPath: /telegram-stats-bot
+  # The ServiceAccount the operator logs in to Infisical as.
+  serviceAccount:
+    name: infisical-auth
+    namespace: infisical-operator-system
+
+bot:
+  # One at most: two bots polling the same token fight over getUpdates.
+  replicas: 1
+  # CI publishes only :master, so pin the digest.
+  image: ghcr.io/jserrats/telegram-stats-bot:master@sha256:374d2b03dfbdf8c3f944fb182dacb502246bda1dd4333d195a2c9136db5f57d5
+  resources:
+    requests:
+      cpu: 10m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
+
+postgres:
+  # 0 keeps Postgres from running initdb on an empty volume, e.g. while an
+  # existing data directory is copied into the PVC.
+  replicas: 1
+  # A data directory only works with the major version that wrote it.
+  image: postgres:12.22-bullseye
+  user: postgres
+  db: telegram_bot
+  storage:
+    # Empty means the cluster's default StorageClass.
+    className: ""
+    size: 2Gi
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      memory: 512Mi

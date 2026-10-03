@@ -1,0 +1,20 @@
+# Only the bot may connect to Postgres.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "tsb.postgresName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "tsb.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "tsb.postgresSelector" . | nindent 6 }}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "tsb.botSelector" . | nindent 14 }}
+      ports:
+        - port: 5432
